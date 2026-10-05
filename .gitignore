@@ -1,0 +1,38 @@
+# bağımlılıklar
+/node_modules
+/.pnp
+.pnp.*
+
+# next.js
+/.next/
+/out/
+next-env.d.ts
+
+# derleme çıktıları
+/build
+*.tsbuildinfo
+
+# ortam değişkenleri (gizli anahtarlar); yalnızca örnek dosya git'e girer
+.env*
+!.env.example
+
+# gerçek öğrenci verisi içeren dump (TC kimlik no, e-posta, telefon)
+/example-database.sql
+
+# supabase CLI
+/supabase/.temp/
+/supabase/.branches/
+
+# vercel
+.vercel
+
+# günlükler
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# işletim sistemi ve editör
+.DS_Store
+Thumbs.db
+*.pem

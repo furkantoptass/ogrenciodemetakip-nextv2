@@ -1,0 +1,6 @@
+- Ödeme takvimi - kim ne zaman ödeyecek ? 
+- Uçuşu askıya alınanlar kısmı olacak bu kısım iptal edilenlerle aynı değil
+- Filo
+- ATPL 
+- öğrenciler listeleme - etiketler, 39 öğrenci 
+- 

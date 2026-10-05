@@ -1,0 +1,16 @@
+/* Yalnızca yazdırma: sayfa düzeni ve uygulama çerçevesinin (kenar çubuğu, üst başlık) kâğıtta gizlenmesi. */
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 5mm;
+  }
+  body:has([data-hat-ppl-print]) [data-slot="sidebar"],
+  body:has([data-hat-ppl-print]) [data-slot="sidebar-inset"] > header,
+  body:has([data-hat-ppl-print]) [data-sonner-toaster] {
+    display: none !important;
+  }
+  body:has([data-hat-ppl-print]) [data-slot="sidebar-wrapper"] {
+    display: block !important;
+    min-height: 0 !important;
+  }
+}
