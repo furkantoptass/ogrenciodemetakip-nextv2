@@ -17,6 +17,13 @@
       "service": "ogrenciodemetakip"
     }
   ],
+  // Gizli olmayan çalışma zamanı ayarları. Gizli anahtarlar `wrangler secret` ile yüklenir (README).
+  "vars": {
+    "ODT_SUPER_EMAIL": "toptas.furkan@gmail.com",
+    "ODT_ALLOWED_EMAIL_DOMAINS": "gmail.com,northfly.aero",
+    "ODT_ALLOWED_EMAILS": "toptas.furkan@gmail.com",
+    "NAERON_API_BASE": "https://api.naeron.com:3110/v2"
+  },
   "observability": {
     "enabled": true
   }

@@ -15,6 +15,7 @@ next-env.d.ts
 # ortam değişkenleri (gizli anahtarlar); yalnızca örnek dosya git'e girer
 .env*
 !.env.example
+!.env.production
 
 # gerçek öğrenci verisi içeren dump (TC kimlik no, e-posta, telefon)
 /example-database.sql

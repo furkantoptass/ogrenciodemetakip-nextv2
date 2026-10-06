@@ -62,16 +62,20 @@ Kurumsal etiket ID'leri Naeron hesabına özeldir. Listelerdeki varsayılan etik
 
 Uygulama [OpenNext Cloudflare adaptörü](https://opennext.js.org/cloudflare) ile Cloudflare Workers üzerinde çalışır (`wrangler.jsonc`, `open-next.config.ts`). Canlı adres: https://ogrenciodemetakip.furkantoptas.workers.dev
 
-```bash
-npx wrangler login   # yalnızca ilk kez
-npm run deploy       # derler ve yayınlar
-npm run preview      # derler ve yerelde Workers ortamında çalıştırır (http://localhost:8787)
-```
+**Otomatik yayın (Workers Builds).** Worker, Cloudflare panelinden GitHub deposuna bağlıdır; `main` dalına her push Cloudflare'de derlenip yayınlanır (Workers & Pages → ogrenciodemetakip → Settings → Build). Ayarlar: build command `npx opennextjs-cloudflare build`, deploy command `npx opennextjs-cloudflare deploy`, root directory `/`. Derleme günlükleri aynı Worker'ın **Builds** sekmesindedir.
 
-- **Ortam değişkenleri.** Derleme sırasında `.env.local` içindeki değerler Worker paketine gömülür; bir değeri değiştirince yeniden `npm run deploy` gerekir. Cloudflare panelinden (Workers → Settings → Variables and Secrets) tanımlanan değerler gömülü olanların önüne geçer. `NEXT_PUBLIC_*` değişkenleri yalnızca derleme anında okunur.
-- **Supabase.** Authentication → URL Configuration → Redirect URLs listesine `https://ogrenciodemetakip.furkantoptas.workers.dev/auth/callback` eklenmelidir; aksi halde Google girişi sonrası Site URL'e dönülür.
-- **Sınırlar.** Küçültülmüş paket gzip ile yaklaşık 2,7 MiB'dir; ücretsiz planın sınırı 3 MiB olduğu için `wrangler.jsonc` içinde `minify` açıktır. `proxy.ts`, adaptörün deneysel Node.js middleware desteğiyle çalışır.
-- **Zamanlanmış görevler.** `vercel.json` içindeki SEO cron'u Cloudflare'de tanımlı değildir; Naeron eşitlemesi de elle çalıştırılır (Naeron Eşitleme ekranı ya da `CRON_SECRET` ile `GET /api/naeron/sync`).
+**Ortam değişkenleri.**
+
+- `NEXT_PUBLIC_*` değerleri derleme anında pakete gömülür; gizli olmadıkları için `.env.production` dosyasında tutulur ve git'e girer.
+- Gizli olmayan çalışma zamanı ayarları (`ODT_*`, `NAERON_API_BASE`) `wrangler.jsonc` → `vars` içindedir; değiştirmek için dosyayı düzenleyip push edin.
+- Gizli anahtarlar (`SUPABASE_SECRET_KEY`, `CRON_SECRET`, `NAERON_API_KEY`) Worker secret'ıdır ve yayınlar arasında korunur. Değiştirmek için `npx wrangler secret put ANAHTAR_ADI` (ya da Cloudflare paneli → Settings → Variables and Secrets).
+- Yerelden `npm run deploy` ile de yayın yapılabilir (`npx wrangler login` gerekir); bu durumda `.env.local` değerleri de pakete gömülür. `npm run preview` uygulamayı yerelde Workers ortamında (http://localhost:8787) çalıştırır.
+
+**Notlar.**
+
+- Supabase → Authentication → URL Configuration → Redirect URLs listesinde `https://ogrenciodemetakip.furkantoptas.workers.dev/auth/callback` bulunmalıdır.
+- Küçültülmüş paket gzip ile yaklaşık 2,7 MiB'dir; ücretsiz planın sınırı 3 MiB olduğu için `wrangler.jsonc` içinde `minify` açıktır. `proxy.ts`, adaptörün deneysel Node.js middleware desteğiyle çalışır.
+- `vercel.json` içindeki SEO cron'u Cloudflare'de tanımlı değildir; Naeron eşitlemesi de elle çalıştırılır (Naeron Eşitleme ekranı ya da `CRON_SECRET` ile `GET /api/naeron/sync`).
 
 ## Vercel'de ilk yayın
 
