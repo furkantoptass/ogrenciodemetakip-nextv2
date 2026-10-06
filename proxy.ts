@@ -10,9 +10,10 @@ export async function proxy(req: NextRequest) {
   // The GET handler validates CRON_SECRET before running the scheduled job.
   const seoCron = req.method === "GET" && path === "/api/seo/cek";
   const naeronCron = req.method === "GET" && path === "/api/naeron/sync";
+  const paylasim = req.method === "GET" && path === "/api/paylasim";
   const authRoute = path.startsWith("/auth/");
 
-  if (seoCekim || seoCron || naeronCron) return NextResponse.next();
+  if (seoCekim || seoCron || naeronCron || paylasim) return NextResponse.next();
 
   if (!supabaseConfigured()) {
     if (path === "/login" || authRoute) return NextResponse.next();

@@ -30,6 +30,7 @@ export const ODT_NAV_ITEMS: OdtNavItem[] = [
   { id: "aramalar", href: "/aramalar", label: "Aramalar", short: "Ara", icon: "bi-telephone", group: "iletisim" },
   { id: "seo", href: "/seo", label: "SEO", short: "SEO", icon: "bi-graph-up", group: "iletisim" },
   { id: "super", href: "/super", label: "Yetkiler", short: "Super", icon: "bi-shield-lock", group: "yonetim" },
+  { id: "paylasim", href: "/paylasim", label: "API", short: "API", icon: "bi-braces", group: "yonetim" },
 ];
 
 /**

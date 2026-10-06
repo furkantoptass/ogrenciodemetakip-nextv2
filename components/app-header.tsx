@@ -12,6 +12,7 @@ import {
   Compass,
   GraduationCap,
   LayoutDashboard,
+  Braces,
   LineChart,
   LogOut,
   MessageCircle,
@@ -60,6 +61,7 @@ const ICONS: Record<string, LucideIcon> = {
   seo: LineChart,
   super: ShieldCheck,
   naeron: RefreshCw,
+  paylasim: Braces,
 };
 
 type Hit = {
