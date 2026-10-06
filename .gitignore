@@ -23,6 +23,11 @@ next-env.d.ts
 /supabase/.temp/
 /supabase/.branches/
 
+# cloudflare (OpenNext derleme çıktısı, wrangler önbelleği, yerel gizli değişkenler)
+/.open-next/
+/.wrangler/
+.dev.vars*
+
 # vercel
 .vercel
 

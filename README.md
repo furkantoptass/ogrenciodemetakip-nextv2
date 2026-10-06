@@ -58,6 +58,21 @@ Kurumsal etiket ID'leri Naeron hesabına özeldir. Listelerdeki varsayılan etik
 
 `example-database.sql` gerçek öğrenci verisi (TC kimlik no, e-posta, telefon) içeren bir MySQL dump'ıdır; **git'e girmez** (`.gitignore`) ve Supabase'e aktarılmadı. Dump üzerinde yapılan tutarlılık kontrollerinde öne çıkanlar: `northfly_odt_users` içinde iki e-postanın tek satıra yazıldığı bir kayıt, `naeron_bi_currencies` tablosunda olmayan para birimi ID'leri (25, 26), `trainingID=308` için eksik eğitim kaydı ve `destroy` durumundaki öğrencilere bağlı aktif sözleşme/taksitler.
 
+## Cloudflare'de yayın
+
+Uygulama [OpenNext Cloudflare adaptörü](https://opennext.js.org/cloudflare) ile Cloudflare Workers üzerinde çalışır (`wrangler.jsonc`, `open-next.config.ts`). Canlı adres: https://ogrenciodemetakip.furkantoptas.workers.dev
+
+```bash
+npx wrangler login   # yalnızca ilk kez
+npm run deploy       # derler ve yayınlar
+npm run preview      # derler ve yerelde Workers ortamında çalıştırır (http://localhost:8787)
+```
+
+- **Ortam değişkenleri.** Derleme sırasında `.env.local` içindeki değerler Worker paketine gömülür; bir değeri değiştirince yeniden `npm run deploy` gerekir. Cloudflare panelinden (Workers → Settings → Variables and Secrets) tanımlanan değerler gömülü olanların önüne geçer. `NEXT_PUBLIC_*` değişkenleri yalnızca derleme anında okunur.
+- **Supabase.** Authentication → URL Configuration → Redirect URLs listesine `https://ogrenciodemetakip.furkantoptas.workers.dev/auth/callback` eklenmelidir; aksi halde Google girişi sonrası Site URL'e dönülür.
+- **Sınırlar.** Küçültülmüş paket gzip ile yaklaşık 2,7 MiB'dir; ücretsiz planın sınırı 3 MiB olduğu için `wrangler.jsonc` içinde `minify` açıktır. `proxy.ts`, adaptörün deneysel Node.js middleware desteğiyle çalışır.
+- **Zamanlanmış görevler.** `vercel.json` içindeki SEO cron'u Cloudflare'de tanımlı değildir; Naeron eşitlemesi de elle çalıştırılır (Naeron Eşitleme ekranı ya da `CRON_SECRET` ile `GET /api/naeron/sync`).
+
 ## Vercel'de ilk yayın
 
 1. Vercel'de **Add New → Project** ile `ulukan2310/ogrenciodemetakip-next` reposunu içe aktarın. Framework **Next.js**, Production Branch **main**, Node.js **22.x**, Build Command **npm run build**.

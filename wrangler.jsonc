@@ -1,0 +1,23 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "ogrenciodemetakip",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  // Küçültme olmadan paket (gzip ~3,1 MiB) ücretsiz planın 3 MiB sınırını aşıyor.
+  "minify": true,
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "services": [
+    {
+      // OpenNext'in kendi kendini çağırması için; servis adı worker adıyla aynı olmalı.
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "ogrenciodemetakip"
+    }
+  ],
+  "observability": {
+    "enabled": true
+  }
+}
