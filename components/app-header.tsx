@@ -1,8 +1,31 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LogOut, Search } from "lucide-react";
+import {
+  Ban,
+  CalendarDays,
+  CalendarX,
+  CirclePause,
+  ClipboardList,
+  Compass,
+  GraduationCap,
+  LayoutDashboard,
+  LineChart,
+  LogOut,
+  MessageCircle,
+  Phone,
+  Plane,
+  PlaneTakeoff,
+  PlusSquare,
+  RefreshCw,
+  Search,
+  ShieldCheck,
+  Table2,
+  Warehouse,
+  type LucideIcon,
+} from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,9 +39,28 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
-import { SidebarTrigger } from "@/components/ui/sidebar";
 import { ODT_MENU_ITEMS, odtNavActive } from "@/lib/odt-nav";
+import { cn } from "@/lib/utils";
+
+const ICONS: Record<string, LucideIcon> = {
+  panel: LayoutDashboard,
+  ucuslar: PlaneTakeoff,
+  iptaller: Ban,
+  askida: CirclePause,
+  "odeme-takvimi": CalendarDays,
+  geciken: CalendarX,
+  filo: Warehouse,
+  liste: Table2,
+  ekstra: PlusSquare,
+  "hat-ppl": Plane,
+  "pic-takip": Compass,
+  wapi: MessageCircle,
+  formlar: ClipboardList,
+  aramalar: Phone,
+  seo: LineChart,
+  super: ShieldCheck,
+  naeron: RefreshCw,
+};
 
 type Hit = {
   kind: "ogrenci" | "ogretmen";
@@ -86,7 +128,7 @@ function KisiArama() {
   const showHits = open && q.trim().length >= 2;
 
   return (
-    <div ref={boxRef} className="relative w-full max-w-xs">
+    <div ref={boxRef} className="relative w-36 sm:w-52">
       <Search
         className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground"
         aria-hidden="true"
@@ -137,17 +179,61 @@ function KisiArama() {
   );
 }
 
-export function AppHeader({ email, name, canSearch }: { email: string; name: string; canSearch: boolean }) {
+export function AppHeader({
+  email,
+  name,
+  canSearch,
+  modules,
+}: {
+  email: string;
+  name: string;
+  canSearch: boolean;
+  modules: string[];
+}) {
   const pathname = usePathname();
-  const current = ODT_MENU_ITEMS.find((item) => odtNavActive(pathname, item.href));
   const initials = (name || email).trim().slice(0, 2).toLocaleUpperCase("tr");
+  const navRef = useRef<HTMLElement>(null);
+  const items = ODT_MENU_ITEMS.filter((item) => modules.includes(item.module ?? item.id));
+
+  useEffect(() => {
+    const nav = navRef.current;
+    const current = nav?.querySelector<HTMLElement>("[aria-current='page']");
+    if (!nav || !current) return;
+    const left = current.offsetLeft;
+    const right = left + current.offsetWidth;
+    if (left < nav.scrollLeft) nav.scrollLeft = left;
+    else if (right > nav.scrollLeft + nav.clientWidth) nav.scrollLeft = right - nav.clientWidth;
+  }, [pathname]);
 
   return (
     <header className="print:hidden sticky top-0 z-30 flex h-12 shrink-0 items-center gap-2 border-b bg-background/95 px-3 backdrop-blur supports-[backdrop-filter]:bg-background/80">
-      <SidebarTrigger aria-label="Menüyü aç/kapat" />
-      <Separator orientation="vertical" className="mr-1 h-4" />
-      <p className="truncate text-sm font-medium">{current?.label ?? "Northfly ODT"}</p>
-      <div className="ml-auto flex min-w-0 flex-1 items-center justify-end gap-2">
+      <Link href="/" className="flex shrink-0 items-center gap-2 pr-1">
+        <span className="flex size-7 items-center justify-center rounded-md bg-primary text-primary-foreground">
+          <GraduationCap className="size-3.5" aria-hidden="true" />
+        </span>
+        <span className="hidden text-sm font-semibold sm:inline">Northfly ODT</span>
+      </Link>
+      <nav ref={navRef} aria-label="Sayfalar" className="flex min-w-0 flex-1 items-center gap-0.5 overflow-x-auto">
+        {items.map((item) => {
+          const Icon = ICONS[item.id] ?? Table2;
+          const on = odtNavActive(pathname, item.href);
+          return (
+            <Link
+              key={item.id}
+              href={item.href}
+              aria-current={on ? "page" : undefined}
+              className={cn(
+                "inline-flex h-8 shrink-0 items-center gap-1.5 rounded-md px-2 text-xs text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+                on && "bg-accent font-medium text-accent-foreground",
+              )}
+            >
+              <Icon className="size-3.5" aria-hidden="true" />
+              <span>{item.short}</span>
+            </Link>
+          );
+        })}
+      </nav>
+      <div className="flex shrink-0 items-center gap-2">
         {canSearch ? <KisiArama /> : null}
         <DropdownMenu>
           <DropdownMenuTrigger

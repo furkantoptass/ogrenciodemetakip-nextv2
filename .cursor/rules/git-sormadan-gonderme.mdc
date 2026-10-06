@@ -1,0 +1,12 @@
+---
+description: Konuşma başında değişiklik kontrolü; GitHub'a göndermeden önce sor
+alwaysApply: true
+---
+
+# GitHub'a göndermeden önce sor
+
+Her konuşmanın başında bu klasörde kayıt bekleyen bir değişiklik var mı bak.
+
+GitHub'a göndermeden önce kullanıcıya sor. Kullanıcı bu konuşmada açıkça "gönder" demediyse gönderme.
+
+Gizli ayar dosyasını (`.env.local` ve anahtarlar) asla kayda alma.
