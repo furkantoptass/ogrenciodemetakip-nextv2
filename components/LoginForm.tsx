@@ -35,7 +35,7 @@ function LoginInner({ configured, allowedDomains }: { configured: boolean; allow
           </span>
           <div>
             <h1 className="text-xl font-semibold tracking-tight">Northfly ODT</h1>
-            <p className="mt-1 text-sm text-muted-foreground">Öğrenci takip sistemi</p>
+            <p className="mt-1 text-sm text-muted-foreground">Öğrenci ödeme takip</p>
           </div>
         </CardContent>
 
