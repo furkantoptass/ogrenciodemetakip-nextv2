@@ -26,14 +26,12 @@ let kutuHazir = false;
 
 async function kutuAc(db: SupabaseClient): Promise<void> {
   if (kutuHazir) return;
-  const { data, error } = await db.storage.getBucket(KUTU);
+  const { data } = await db.storage.getBucket(KUTU);
   if (!data) {
     const created = await db.storage.createBucket(KUTU, { public: false });
     if (created.error && !/already exists/i.test(created.error.message)) {
       throw new Error(created.error.message);
     }
-  } else if (error) {
-    throw new Error(error.message);
   }
   kutuHazir = true;
 }

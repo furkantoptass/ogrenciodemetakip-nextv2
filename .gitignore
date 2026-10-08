@@ -10,6 +10,7 @@ next-env.d.ts
 
 # derleme çıktıları
 /build
+/dist
 *.tsbuildinfo
 
 # ortam değişkenleri (gizli anahtarlar); yalnızca örnek dosya git'e girer
