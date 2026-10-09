@@ -34,7 +34,7 @@ export function temizOkullar(raw: unknown): OkulId[] {
 export function okulBaglanti(okul: OkulId): { base: string; key: string } {
   if (okul === "northfly") {
     return {
-      base: (process.env.NAERON_API_BASE_NORTHFLY || "https://northfly.naeron.com:3110/v2").replace(/\/+$/, ""),
+      base: (process.env.NAERON_API_BASE_NORTHFLY || "https://api.naeron.com:3110/v2").replace(/\/+$/, ""),
       key: (process.env.NAERON_API_KEY_NORTHFLY || "").trim(),
     };
   }

@@ -29,7 +29,7 @@
     "ODT_ALLOWED_EMAIL_DOMAINS": "gmail.com,northfly.aero",
     "ODT_ALLOWED_EMAILS": "toptas.furkan@gmail.com",
     "NAERON_API_BASE": "https://api.naeron.com:3110/v2",
-    "NAERON_API_BASE_NORTHFLY": "https://northfly.naeron.com:3110/v2"
+    "NAERON_API_BASE_NORTHFLY": "https://api.naeron.com:3110/v2"
   },
   "observability": {
     "enabled": true
