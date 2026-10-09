@@ -221,11 +221,11 @@ export function AppHeader({
   }
   const items = ODT_MENU_ITEMS.filter((item) => modules.includes(item.module ?? item.id));
   const n = items.length;
-  const iconCls = n >= 18 ? "size-2.5" : n >= 14 ? "size-3" : "size-3.5";
-  const textCls = n >= 18 ? "text-[9px]" : n >= 14 ? "text-[10px]" : "text-[11px]";
+  const iconCls = n >= 18 ? "size-4" : "size-5";
+  const textCls = n >= 18 ? "text-[9px]" : "text-[10px]";
 
   return (
-    <header className="print:hidden sticky top-0 z-30 flex h-12 shrink-0 items-center gap-2 border-b bg-background/95 px-3 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+    <header className="print:hidden sticky top-0 z-30 flex h-16 shrink-0 items-center gap-2 border-b bg-background/95 px-3 backdrop-blur supports-[backdrop-filter]:bg-background/80">
       <Link href="/" className="flex shrink-0 items-center gap-2 pr-1">
         <span className="flex size-7 items-center justify-center rounded-md bg-primary text-primary-foreground">
           <GraduationCap className="size-3.5" aria-hidden="true" />
@@ -243,7 +243,7 @@ export function AppHeader({
               title={item.label}
               aria-current={on ? "page" : undefined}
               className={cn(
-                "inline-flex h-8 min-w-0 flex-1 items-center justify-center gap-0.5 overflow-hidden rounded-md px-0.5 text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+                "inline-flex h-14 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 overflow-hidden rounded-md px-0.5 leading-none text-muted-foreground hover:bg-accent hover:text-accent-foreground",
                 textCls,
                 on && "bg-accent font-medium text-accent-foreground",
               )}
