@@ -27,7 +27,15 @@ function zaman(iso: string | null): string {
   return new Intl.DateTimeFormat("tr-TR", { dateStyle: "medium", timeStyle: "short", timeZone: "Europe/Istanbul" }).format(d);
 }
 
-export default function NaeronPanel({ durum, configured }: { durum: NaeronDurum[]; configured: boolean }) {
+export default function NaeronPanel({
+  durum,
+  configured,
+  okulAd,
+}: {
+  durum: NaeronDurum[];
+  configured: boolean;
+  okulAd: string;
+}) {
   const router = useRouter();
   const [busy, setBusy] = useState<"changes" | "full" | null>(null);
   const [son, setSon] = useState<SyncResult[] | null>(null);
@@ -61,7 +69,7 @@ export default function NaeronPanel({ durum, configured }: { durum: NaeronDurum[
         <div>
           <h1 className="text-xl font-semibold tracking-tight">Naeron Eşitleme</h1>
           <p className="text-sm text-muted-foreground">
-            Öğrenci, sözleşme, ödeme ve uçuş verisi Naeron REST BI servisinden çekilir.
+            Şu an {okulAd} çekilir. Diğer okulun kayıtları durur.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -80,7 +88,7 @@ export default function NaeronPanel({ durum, configured }: { durum: NaeronDurum[
         <Card>
           <CardContent>
             <p className="text-sm text-destructive">
-              NAERON_API_KEY tanımlı değil. Anahtarı ortam değişkenlerine ekleyip sunucuyu yeniden başlat.
+              Bu okulun anahtarı tanımlı değil. Anahtar eklenince yeniden yayınlamak gerekir.
             </p>
           </CardContent>
         </Card>

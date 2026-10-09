@@ -3,7 +3,8 @@
 import { useMemo, useState, type ReactNode } from "react";
 import { Check, CircleAlert, Loader2, Search, SearchX, X } from "lucide-react";
 import { fmtMoneyEu } from "@/lib/hesaplamalar";
-import { picFmtMin, type PicTakipPageData, type PicTakipRow, type PicUcus } from "@/lib/pic-takip";
+import { picFmtMin } from "@/lib/pic-format";
+import type { PicTakipPageData, PicTakipRow, PicUcus } from "@/lib/pic-takip";
 import { PageHeader, PageShell } from "@/components/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

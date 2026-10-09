@@ -62,12 +62,7 @@ type FlightRaw = {
 
 type DateRaw = { student_id: number; katilacagi_tarihler: string };
 
-export function picFmtMin(m: number): string {
-  const n = Math.max(0, Math.round(Number(m) || 0));
-  const h = Math.floor(n / 60);
-  const mm = n % 60;
-  return `${h}:${String(mm).padStart(2, "0")}`;
-}
+export { picFmtMin } from "./pic-format";
 
 export function isPicDuty(duty: string): boolean {
   const d = String(duty ?? "")

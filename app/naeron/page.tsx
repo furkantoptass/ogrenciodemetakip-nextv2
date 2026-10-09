@@ -1,4 +1,6 @@
 import { requirePageModule } from "@/lib/odt-yetki";
+import { okulAd, okulBaglanti } from "@/lib/okul";
+import { aktifOkul } from "@/lib/okul-istek";
 import { NAERON_TABLES, naeronSyncState } from "@/lib/naeron";
 import NaeronPanel, { type NaeronDurum } from "@/components/NaeronPanel";
 
@@ -44,5 +46,6 @@ export default async function NaeronPage() {
       error: s?.error_text ?? null,
     };
   });
-  return <NaeronPanel durum={durum} configured={Boolean(process.env.NAERON_API_KEY?.trim())} />;
+  const okul = await aktifOkul();
+  return <NaeronPanel durum={durum} configured={Boolean(okulBaglanti(okul).key)} okulAd={okulAd(okul)} />;
 }

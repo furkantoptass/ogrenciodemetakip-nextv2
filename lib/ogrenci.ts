@@ -1,4 +1,5 @@
 import { rows as dbRows } from "./db";
+import { ODT_DEFAULT_ACTIVE_CORP_IDS, ODT_DEFAULT_CORP_LABEL_IDS } from "./corp-etiket";
 import {
   autoplanFromContractEur,
   studentPaidBehindDuePlan,
@@ -7,17 +8,7 @@ import {
   type RatingBitId,
 } from "./hesaplamalar";
 
-// Kurumsal etiket ID'leri Naeron hesabına özeldir. NEXT_PUBLIC_ODT_DEFAULT_CORP_LABEL_IDS tanımlıysa
-// (virgüllü liste; boş = varsayılan etiket filtresi yok) aşağıdaki Northfly varsayılanlarının yerine geçer.
-const ENV_CORP_LABEL_IDS = process.env.NEXT_PUBLIC_ODT_DEFAULT_CORP_LABEL_IDS;
-export const ODT_DEFAULT_CORP_LABEL_IDS =
-  ENV_CORP_LABEL_IDS !== undefined
-    ? ENV_CORP_LABEL_IDS.split(",")
-        .map((id) => Number(id.trim()))
-        .filter((id) => Number.isInteger(id) && id > 0)
-    : [663, 1079, 1082, 1085, 875, 1077, 1080, 1083, 779, 1078, 1081, 1084, 1090];
-// Default aktif: 875 (PIC2025) ve 1090 (PIC2026) çıkarılmış
-export const ODT_DEFAULT_ACTIVE_CORP_IDS = ODT_DEFAULT_CORP_LABEL_IDS.filter((id) => id !== 875 && id !== 1090);
+export { ODT_DEFAULT_ACTIVE_CORP_IDS, ODT_DEFAULT_CORP_LABEL_IDS };
 
 export type CurrencyInfo = { id: number; symbol: string; shortcode: string; isEur: boolean };
 export type MoneyRow = { currencyID: number; sum_price: number; sum_payed: number };

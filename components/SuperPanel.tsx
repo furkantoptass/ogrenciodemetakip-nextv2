@@ -25,9 +25,15 @@ type User = {
   active: boolean;
   isSuper: boolean;
   modules: string[];
+  okullar: string[];
 };
 // Kaydedilmemiş satır düzenlemesi; Kaydet'e basılana kadar yalnızca ekranda durur.
-type Taslak = { modules: string[]; isSuper: boolean };
+type Taslak = { modules: string[]; isSuper: boolean; okullar: string[] };
+
+const OKUL_SEC = [
+  { id: "alfaair", ad: "AlfaAIR" },
+  { id: "northfly", ad: "Northfly" },
+];
 
 const TH_CLS = "h-9 bg-muted px-3 text-xs font-medium tracking-wide text-muted-foreground uppercase";
 
@@ -68,6 +74,7 @@ export default function SuperPanel() {
   const [newName, setNewName] = useState("");
   const [newMods, setNewMods] = useState<string[]>([]);
   const [newSuper, setNewSuper] = useState(false);
+  const [newOkullar, setNewOkullar] = useState<string[]>(["alfaair", "northfly"]);
   const [addMsg, setAddMsg] = useState("");
   const [busy, setBusy] = useState(false);
   const [busyId, setBusyId] = useState(0);
@@ -112,12 +119,12 @@ export default function SuperPanel() {
 
   function degisti(u: User): boolean {
     const t = taslak[u.id];
-    return !!t && (t.isSuper !== u.isSuper || !ayniListe(t.modules, u.modules));
+    return !!t && (t.isSuper !== u.isSuper || !ayniListe(t.modules, u.modules) || !ayniListe(t.okullar, u.okullar));
   }
 
   function duzenle(u: User, patch: Partial<Taslak>) {
     setTaslak((prev) => {
-      const simdi = prev[u.id] ?? { modules: u.modules, isSuper: u.isSuper };
+      const simdi = prev[u.id] ?? { modules: u.modules, isSuper: u.isSuper, okullar: u.okullar };
       return { ...prev, [u.id]: { ...simdi, ...patch } };
     });
   }
@@ -144,6 +151,7 @@ export default function SuperPanel() {
           name: newName,
           modules: newMods,
           isSuper: newSuper,
+          okullar: newOkullar,
         }),
       });
       const data = await res.json();
@@ -152,6 +160,7 @@ export default function SuperPanel() {
       setNewName("");
       setNewMods([]);
       setNewSuper(false);
+      setNewOkullar(["alfaair", "northfly"]);
       setShowAdd(false);
       toast.success("Hesap eklendi. Kişi Google ile girince bu kayıt kullanılır.");
       await load();
@@ -177,6 +186,7 @@ export default function SuperPanel() {
           modules: next.modules,
           isSuper: mine ? true : next.isSuper,
           active: mine ? true : next.active,
+          okullar: next.okullar,
         }),
       });
       const data = await res.json();
@@ -192,7 +202,7 @@ export default function SuperPanel() {
     }
   }
 
-  const sutun = mods.length + 4;
+  const sutun = mods.length + 6;
 
   return (
     <PageShell>
@@ -271,6 +281,11 @@ export default function SuperPanel() {
                   {mods.map((m) => (
                     <TableHead key={m.id} scope="col" className={cn(TH_CLS, "text-center")}>
                       {m.label}
+                    </TableHead>
+                  ))}
+                  {OKUL_SEC.map((o) => (
+                    <TableHead key={o.id} scope="col" className={cn(TH_CLS, "border-l text-center")}>
+                      {o.ad}
                     </TableHead>
                   ))}
                   <TableHead scope="col" className={cn(TH_CLS, "border-l text-center")}>
@@ -354,6 +369,16 @@ export default function SuperPanel() {
                           />
                         </TableCell>
                       ))}
+                      {OKUL_SEC.map((o) => (
+                        <TableCell key={o.id} className="border-l px-3 text-center">
+                          <Checkbox
+                            className="mx-auto"
+                            checked={g.okullar.includes(o.id)}
+                            onCheckedChange={() => duzenle(u, { okullar: toggleArr(g.okullar, o.id) })}
+                            aria-label={`${ad}: ${o.ad}`}
+                          />
+                        </TableCell>
+                      ))}
                       <TableCell className="border-l px-3 text-center">
                         <Checkbox
                           className="mx-auto"
@@ -419,6 +444,21 @@ export default function SuperPanel() {
                 />
               </div>
             </div>
+
+            <fieldset className="grid gap-2">
+              <legend className="mb-2 text-sm font-medium">Okullar</legend>
+              <div className="grid grid-cols-2 gap-2">
+                {OKUL_SEC.map((o) => (
+                  <Label key={o.id} className="cursor-pointer rounded-lg border px-2.5 py-2 font-normal">
+                    <Checkbox
+                      checked={newOkullar.includes(o.id)}
+                      onCheckedChange={() => setNewOkullar(toggleArr(newOkullar, o.id))}
+                    />
+                    {o.ad}
+                  </Label>
+                ))}
+              </div>
+            </fieldset>
 
             <fieldset className="grid gap-2">
               <legend className="mb-2 text-sm font-medium">Sayfalar</legend>

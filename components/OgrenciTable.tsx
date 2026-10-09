@@ -14,7 +14,7 @@ import {
   TriangleAlert,
 } from "lucide-react";
 import type { OgrenciRow, CurrencyInfo } from "@/lib/ogrenci";
-import { ODT_DEFAULT_ACTIVE_CORP_IDS } from "@/lib/ogrenci";
+import { ODT_DEFAULT_ACTIVE_CORP_IDS } from "@/lib/corp-etiket";
 import {
   fmtMinutes,
   fmtMoneyEu,

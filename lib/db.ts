@@ -1,4 +1,5 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { aktifOkul } from "./okul-istek";
 import { SUPABASE_URL } from "./supabase/env";
 
 /**
@@ -36,9 +37,22 @@ function revive(v: unknown): unknown {
 }
 
 async function call(fn: string, args?: Record<string, unknown>): Promise<unknown> {
-  const { data, error } = await admin().rpc(fn, args ?? {});
-  if (error) throw new Error(`${fn}: ${error.message}`);
-  return data;
+  const okul = await aktifOkul();
+  const payload = args ?? {};
+  const wrapped = await admin().rpc("odt_okul_call", {
+    p_okul: okul,
+    p_fn: fn,
+    p_args: payload,
+  });
+  if (!wrapped.error) return wrapped.data;
+  const msg = wrapped.error.message || "";
+  // Okul süzgeci henüz yoksa eski çağrıyla devam et; site kapanmasın.
+  if (/odt_okul_call|schema cache|Could not find the function/i.test(msg)) {
+    const direct = await admin().rpc(fn, payload);
+    if (direct.error) throw new Error(`${fn}: ${direct.error.message}`);
+    return direct.data;
+  }
+  throw new Error(`${fn}: ${msg}`);
 }
 
 /** Satır döndüren fonksiyon (jsonb dizi döner). Zaman damgaları Date olur. */

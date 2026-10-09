@@ -1,11 +1,11 @@
 import { rows as dbRows, run } from "./db";
+import { okulBaglanti } from "./okul";
+import { aktifOkul } from "./okul-istek";
 
 /**
  * Naeron REST BI v2 → Supabase eşitlemesi (https://naeron.com/docs/restBI/).
  * Her tablo `bi_<ad>` uç noktasından sayfa sayfa okunur ve `odt_naeron_upsert_<ad>` ile m_ID üzerinden upsert edilir.
  */
-const BASE = (process.env.NAERON_API_BASE || "https://api.naeron.com:3110/v2").replace(/\/+$/, "");
-
 // Sıra: önce referans tabloları, en son en büyük tablo (uçuşlar).
 const TABLES = [
   { name: "currencies", incremental: false },
@@ -46,16 +46,18 @@ const WRITE_CHUNK = 500;
 // Postgres'te küçük harfe çevrilen sütunlar (uçuşlar).
 const LOWER_KEYS: Record<string, string> = { RT: "rt", IFR: "ifr", SPIC: "spic", MCC: "mcc" };
 
-function apiKey(): string {
-  const key = (process.env.NAERON_API_KEY || "").trim();
-  if (!key) throw new Error("NAERON_API_KEY tanımlı değil.");
-  return key;
+async function baglanti() {
+  const okul = await aktifOkul();
+  const bag = okulBaglanti(okul);
+  if (!bag.key) throw new Error("Bu okulun anahtarı tanımlı değil.");
+  return bag;
 }
 
 async function naeronGet<T>(path: string, params: Record<string, string | undefined>): Promise<T> {
-  const url = new URL(`${BASE}${path}`);
+  const bag = await baglanti();
+  const url = new URL(`${bag.base}${path}`);
   for (const [k, v] of Object.entries(params)) if (v) url.searchParams.set(k, v);
-  const res = await fetch(url, { headers: { "x-api-key": apiKey() }, cache: "no-store" });
+  const res = await fetch(url, { headers: { "x-api-key": bag.key }, cache: "no-store" });
   const body = (await res.json().catch(() => null)) as (T & { error?: { message?: string } }) | null;
   if (!res.ok || !body) {
     throw new Error(body?.error?.message || `Naeron HTTP ${res.status}`);
@@ -74,9 +76,11 @@ function normalizeRow(raw: unknown): Record<string, unknown> | null {
 }
 
 async function writeRows(table: NaeronTable, list: Record<string, unknown>[]): Promise<number> {
+  const okul = await aktifOkul();
+  const tagged = list.map((row) => ({ ...row, okul }));
   let written = 0;
-  for (let i = 0; i < list.length; i += WRITE_CHUNK) {
-    written += await run(`odt_naeron_upsert_${table}`, { p_rows: list.slice(i, i + WRITE_CHUNK) });
+  for (let i = 0; i < tagged.length; i += WRITE_CHUNK) {
+    written += await run(`odt_naeron_upsert_${table}`, { p_rows: tagged.slice(i, i + WRITE_CHUNK) });
   }
   return written;
 }
@@ -152,7 +156,7 @@ export async function syncNaeron(opts: { full?: boolean; tables?: string[] } = {
   ok: boolean;
   results: NaeronTableResult[];
 }> {
-  apiKey();
+  await baglanti();
   const state = await dbRows<{ table_name: string; last_server_time: Date | string | null; ok: boolean }>(
     "odt_naeron_state_list"
   );

@@ -186,14 +186,39 @@ export function AppHeader({
   name,
   canSearch,
   modules,
+  secili,
+  okullar,
 }: {
   email: string;
   name: string;
   canSearch: boolean;
   modules: string[];
+  secili: string;
+  okullar: { id: string; ad: string }[];
 }) {
   const pathname = usePathname();
+  const [okulBusy, setOkulBusy] = useState(false);
   const initials = (name || email).trim().slice(0, 2).toLocaleUpperCase("tr");
+  const okulAd = okullar.find((o) => o.id === secili)?.ad ?? "AlfaAIR";
+
+  async function secOkul(id: string) {
+    if (id === secili || okulBusy) return;
+    setOkulBusy(true);
+    try {
+      const res = await fetch("/api/okul", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ okul: id }),
+      });
+      if (!res.ok) {
+        setOkulBusy(false);
+        return;
+      }
+      window.location.reload();
+    } catch {
+      setOkulBusy(false);
+    }
+  }
   const navRef = useRef<HTMLElement>(null);
   const items = ODT_MENU_ITEMS.filter((item) => modules.includes(item.module ?? item.id));
 
@@ -244,7 +269,7 @@ export function AppHeader({
             <Avatar className="size-6">
               <AvatarFallback className="text-[10px]">{initials}</AvatarFallback>
             </Avatar>
-            <span className="hidden max-w-40 truncate text-sm md:inline">{name || email}</span>
+            <span className="max-w-24 truncate text-xs sm:max-w-40 sm:text-sm">{okulAd}</span>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="min-w-56">
             <DropdownMenuGroup>
@@ -252,6 +277,16 @@ export function AppHeader({
                 <span className="block truncate font-medium text-foreground">{name || "Hesap"}</span>
                 <span className="block truncate text-xs font-normal text-muted-foreground">{email}</span>
               </DropdownMenuLabel>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuLabel>Okul</DropdownMenuLabel>
+              {okullar.map((o) => (
+                <DropdownMenuItem key={o.id} disabled={okulBusy} onClick={() => void secOkul(o.id)}>
+                  {o.ad}
+                  {o.id === secili ? " · açık" : ""}
+                </DropdownMenuItem>
+              ))}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem render={<a href="/auth/signout" />}>

@@ -16,6 +16,7 @@ export async function GET() {
       active: u.active,
       isSuper: u.isSuper,
       modules: u.modules.filter((m) => m !== "super"),
+      okullar: u.okullar,
     })),
   });
 }
@@ -31,6 +32,7 @@ export async function POST(req: NextRequest) {
     modules?: string[];
     isSuper?: boolean;
     active?: boolean;
+    okullar?: string[];
   };
   try {
     body = await req.json();
@@ -45,6 +47,7 @@ export async function POST(req: NextRequest) {
       name: String(body.name ?? ""),
       modules: body.modules,
       isSuper: !!body.isSuper,
+      okullar: body.okullar,
     });
     if (!res.ok) return NextResponse.json({ ok: false, error: res.error }, { status: 400 });
     return NextResponse.json({ ok: true, id: res.id });
@@ -56,6 +59,7 @@ export async function POST(req: NextRequest) {
       modules: body.modules,
       isSuper: !!body.isSuper,
       active: body.active !== false,
+      okullar: body.okullar,
     });
     if (!res.ok) return NextResponse.json({ ok: false, error: res.error }, { status: 400 });
     return NextResponse.json({ ok: true });

@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { rows as dbRows, run } from "@/lib/db";
 import { ODT_NAV_ITEMS } from "@/lib/odt-nav";
+import { type OkulId, secilenOkullar, temizOkullar } from "@/lib/okul";
 
 export const ODT_SUPER_EMAIL = normEmail(process.env.ODT_SUPER_EMAIL || "ulukan@northfly.aero");
 
@@ -18,6 +19,7 @@ export type OdtYetki = {
   active: boolean;
   isSuper: boolean;
   modules: string[];
+  okullar: OkulId[];
 };
 
 type UserRow = {
@@ -92,7 +94,16 @@ async function modulesFor(userId: number): Promise<string[]> {
   return rows.map((r) => String(r.module_id));
 }
 
-function toYetki(row: UserRow, modules: string[]): OdtYetki {
+async function okullarFor(userId: number): Promise<OkulId[]> {
+  try {
+    const raw = await dbRows<string>("odt_yetki_okullar", { p_user_id: userId });
+    return temizOkullar(raw);
+  } catch {
+    return temizOkullar([]);
+  }
+}
+
+function toYetki(row: UserRow, modules: string[], okullar: OkulId[]): OdtYetki {
   const isSuper = asOn(row.is_super);
   const pageMods = modules.filter((id) => ODT_PAGE_MODULES.some((m) => m.id === id));
   return {
@@ -102,6 +113,7 @@ function toYetki(row: UserRow, modules: string[]): OdtYetki {
     active: asOn(row.is_active),
     isSuper,
     modules: isSuper ? [...pageMods, "super"] : pageMods,
+    okullar,
   };
 }
 
@@ -112,8 +124,9 @@ export async function getYetki(email: string): Promise<OdtYetki | null> {
   const rows = await dbRows<UserRow>("odt_yetki_user_by_email", { p_email: e });
   const row = rows[0];
   if (!row) return null;
-  const mods = await modulesFor(asId(row.id));
-  return toYetki(row, mods);
+  const id = asId(row.id);
+  const mods = await modulesFor(id);
+  return toYetki(row, mods, await okullarFor(id));
 }
 
 export async function canLogin(email: string): Promise<boolean> {
@@ -168,7 +181,8 @@ export async function listOdtUsers(): Promise<OdtYetki[]> {
   const rows = await dbRows<UserRow>("odt_yetki_users");
   const out: OdtYetki[] = [];
   for (const row of rows) {
-    out.push(toYetki(row, await modulesFor(asId(row.id))));
+    const id = asId(row.id);
+    out.push(toYetki(row, await modulesFor(id), await okullarFor(id)));
   }
   return out;
 }
@@ -184,6 +198,13 @@ function cleanModules(raw: unknown): string[] {
   return out;
 }
 
+async function setOkullar(userId: number, raw: unknown): Promise<void> {
+  const list = secilenOkullar(raw);
+  // İkisi de seçiliyse kayıt tutmayız; boş liste iki okul demektir.
+  const kayit = list.length >= 2 ? [] : list;
+  await run("odt_yetki_okullar_set", { p_user_id: userId, p_okullar: kayit });
+}
+
 async function setModules(userId: number, modules: string[]): Promise<void> {
   await run("odt_yetki_modules_clear", { p_user_id: userId });
   if (modules.length) {
@@ -197,6 +218,7 @@ export async function createOdtUser(input: {
   name: string;
   modules: unknown;
   isSuper: boolean;
+  okullar?: unknown;
 }): Promise<{ ok: true; id: number } | { ok: false; error: string }> {
   const email = normEmail(input.email);
   if (!email || !isAllowedEmail(email)) {
@@ -205,6 +227,8 @@ export async function createOdtUser(input: {
   if (email.length > 190) return { ok: false, error: "E-posta çok uzun." };
   const name = String(input.name ?? "").trim().slice(0, 190);
   const modules = cleanModules(input.modules);
+  const okullar = secilenOkullar(input.okullar ?? ["alfaair", "northfly"]);
+  if (!okullar.length) return { ok: false, error: "En az bir okul seçin." };
   const isSuper = !!input.isSuper;
   await ensureSchema();
   const exists = await dbRows<{ id: unknown }>("odt_yetki_user_id_by_email", { p_email: email });
@@ -217,6 +241,7 @@ export async function createOdtUser(input: {
   const id = asId(rows[0]?.id);
   if (!id) return { ok: false, error: "Hesap eklenemedi." };
   await setModules(id, modules);
+  await setOkullar(id, okullar);
   return { ok: true, id };
 }
 
@@ -226,6 +251,7 @@ export async function saveOdtUser(input: {
   modules: unknown;
   isSuper: boolean;
   active: boolean;
+  okullar?: unknown;
 }): Promise<{ ok: true } | { ok: false; error: string }> {
   const userId = Number(input.userId);
   if (!userId) return { ok: false, error: "Kullanıcı yok." };
@@ -244,7 +270,10 @@ export async function saveOdtUser(input: {
     isSuper = true;
     active = true;
   }
+  const okullar = secilenOkullar(input.okullar);
+  if (!okullar.length) return { ok: false, error: "En az bir okul seçin." };
   await run("odt_yetki_user_update", { p_id: userId, p_is_super: isSuper, p_is_active: active });
   await setModules(userId, cleanModules(input.modules));
+  await setOkullar(userId, okullar);
   return { ok: true };
 }

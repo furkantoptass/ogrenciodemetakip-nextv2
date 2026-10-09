@@ -5,6 +5,8 @@ import { auth } from "@/lib/auth";
 import { getYetki } from "@/lib/odt-yetki";
 import { cn } from "@/lib/utils";
 import { AppHeader } from "@/components/app-header";
+import { OKULLAR } from "@/lib/okul";
+import { aktifOkul } from "@/lib/okul-istek";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
@@ -21,6 +23,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const yetki = email ? await getYetki(email) : null;
   // Çerçeve yalnızca aktif, yetkili oturumda gösterilir; giriş ve yetki-yok sayfaları yalın kalır.
   const shell = !!yetki?.active;
+  const secili = shell ? await aktifOkul() : "alfaair";
+  const okullar = OKULLAR.filter((o) => yetki?.okullar?.includes(o.id));
 
   return (
     <html lang="tr" className={cn("font-sans", geist.variable)}>
@@ -33,6 +37,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 name={yetki.name || session?.user?.name || ""}
                 canSearch={yetki.modules.includes("liste")}
                 modules={yetki.modules}
+                secili={secili}
+                okullar={okullar}
               />
               <div className="min-w-0 flex-1">{children}</div>
             </div>
