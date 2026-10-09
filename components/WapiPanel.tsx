@@ -109,12 +109,26 @@ export default function WapiPanel({ userEmail }: { userEmail: string }) {
   const loadHat = useCallback(async (id: number, opts?: { keepSendsIfEmpty?: boolean; keepTemplate?: boolean }) => {
     if (!id) return;
     setBusyHat(true);
-    try {
+    const oku = async () => {
       const res = await fetch(`/api/wapi/hat?id=${id}`);
-      const data = await res.json();
-      if (!data.ok) {
-        setLoadErr(data.error || "Hat bilgisi alınamadı");
-        return;
+      return await res.json();
+    };
+    try {
+      let data = await oku();
+      if (!data.ok || data.templateError || data.chatError) {
+        try {
+          const again = await oku();
+          data = {
+            ...again,
+            templates: again.templates?.length ? again.templates : data.templates,
+            chats: again.chats?.length ? again.chats : data.chats,
+            sends: again.sends?.length ? again.sends : data.sends,
+            templateError: again.templates?.length ? "" : again.templateError || data.templateError,
+            chatError: again.chats?.length ? "" : again.chatError || data.chatError,
+          };
+        } catch {
+          // İlk okuma duruyor.
+        }
       }
       setTemplates(data.templates ?? []);
       setChats(data.chats ?? []);
@@ -124,6 +138,8 @@ export default function WapiPanel({ userEmail }: { userEmail: string }) {
         setTemplateId(0);
         setParams({});
       }
+      const err = [data.templateError, data.chatError].filter(Boolean).join(" ");
+      setLoadErr(err);
     } catch {
       setLoadErr("Hat bilgisi alınamadı");
     } finally {
