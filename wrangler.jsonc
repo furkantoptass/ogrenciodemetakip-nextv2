@@ -1,7 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "ogrenciodemetakip",
-  "account_id": "15eb2d05650e70cb01cb6d8c5a572f6a",
+  "account_id": "fe0c36ef372144fca4c5234695f1ad4e",
   "keep_vars": true,
   "main": ".open-next/worker.js",
   "compatibility_date": "2026-10-01",
