@@ -3,6 +3,10 @@
   "name": "ogrenciodemetakip",
   "account_id": "fe0c36ef372144fca4c5234695f1ad4e",
   "keep_vars": true,
+  "routes": [
+    { "pattern": "northfly.online/*", "zone_name": "northfly.online" },
+    { "pattern": "www.northfly.online/*", "zone_name": "northfly.online" }
+  ],
   "main": ".open-next/worker.js",
   "compatibility_date": "2026-10-01",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
