@@ -117,6 +117,11 @@ export async function getOdemeOgrenciDoldur(studentId: number): Promise<OdemeOgr
 
   const hatirlat7 = kalan.find((i) => i.kalan > 0.009 && i.ymd === hedef7) ?? null;
   const hatirlat = hatirlat7 ?? gelecek[0] ?? null;
+  const acik = kalan.filter((i) => i.kalan > 0.009);
+  const siradaki = acik[0] ?? null;
+  const planMetin = acik
+    .map((i) => `${fmtGun(i.ymd)}: ${fmtTutar(i.kalan, symbolMap[i.currencyId] ?? "€")}`)
+    .join("\n");
   const gecikmeSatir = kalan.find((i) => i.kalan > 0.009 && i.ymd === dun) ?? (geciken.length ? geciken[0] : null);
 
   const gecikmisListe = overdueRemainingFromPlanAndPaid(
@@ -132,7 +137,7 @@ export async function getOdemeOgrenciDoldur(studentId: number): Promise<OdemeOgr
     odeme_tutari: "",
     gecikmis_tutar: "",
     son_odeme_tarihi: "",
-    yeni_odeme_plani: "",
+    yeni_odeme_plani: planMetin,
   });
 
   const values: Record<string, Record<OdemeAlan, string>> = {};
@@ -142,9 +147,9 @@ export async function getOdemeOgrenciDoldur(studentId: number): Promise<OdemeOgr
     const v = emptyAlan();
     if (m.id === "hatirlatma") {
       uygun[m.id] = !!hatirlat7;
-      if (hatirlat) {
-        v.vade_tarihi = fmtGun(hatirlat.ymd);
-        v.odeme_tutari = fmtTutar(hatirlat.kalan, symbolMap[hatirlat.currencyId] ?? "€");
+      if (siradaki) {
+        v.vade_tarihi = fmtGun(siradaki.ymd);
+        v.odeme_tutari = fmtTutar(siradaki.kalan, symbolMap[siradaki.currencyId] ?? "€");
       } else {
         v.vade_tarihi = bugunYazi;
       }
@@ -171,7 +176,7 @@ export async function getOdemeOgrenciDoldur(studentId: number): Promise<OdemeOgr
 
   let not = "";
   if (!phone) not = "Kayıtta cep yok";
-  else if (!gecikmisToplamMetin && geciken.length === 0 && !hatirlat) not = "Bu öğrenci için doldurulacak açık taksit yok";
+  else if (!planMetin && !hatirlat) not = "Bu öğrenci için doldurulacak açık taksit yok";
 
   return { id, name, phone, phoneOk: !!phone, not, values, uygun };
 }

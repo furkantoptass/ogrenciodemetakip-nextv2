@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireApiModule } from "@/lib/odt-yetki";
 import { rows as dbRows } from "@/lib/db";
+import { toWhatsAppPhone } from "@/lib/wapi-phone";
 
 type PersonRow = {
   m_ID: unknown;
@@ -15,6 +16,7 @@ type Hit = {
   id: number;
   name: string;
   extra: string;
+  phone: string;
   href: string | null;
 };
 
@@ -79,6 +81,7 @@ export async function GET(req: NextRequest) {
         id,
         name: kisiAd(s) || `#${id}`,
         extra: (s.shortCode ?? "").trim(),
+        phone: toWhatsAppPhone(s.gsm ?? "") ?? (s.gsm ?? "").trim(),
         href: `/ogrenciler?student=${id}`,
       });
     }
@@ -92,6 +95,7 @@ export async function GET(req: NextRequest) {
         id,
         name: kisiAd(e) || `#${id}`,
         extra: (e.shortCode ?? "").trim(),
+        phone: toWhatsAppPhone(e.gsm ?? "") ?? (e.gsm ?? "").trim(),
         href: studentId ? `/ogrenciler?student=${studentId}` : null,
       });
     }

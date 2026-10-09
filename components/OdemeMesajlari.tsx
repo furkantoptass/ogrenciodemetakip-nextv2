@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Play, Search, Send, TriangleAlert } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -29,7 +29,7 @@ type Template = {
   variables: string[];
 };
 
-type Hit = { kind: string; id: number; name: string; extra: string; href: string | null };
+type Hit = { kind: string; id: number; name: string; extra: string; phone?: string; href: string | null };
 type Doldur = {
   id: number;
   name: string;
@@ -81,6 +81,7 @@ export default function OdemeMesajlari({
   const [autoOn, setAutoOn] = useState(false);
   const [autoBusy, setAutoBusy] = useState(false);
   const [autoNot, setAutoNot] = useState("");
+  const aramaNesil = useRef(0);
 
   const tanim = ODEME_MESAJLARI.find((m) => m.id === mesajId) ?? ODEME_MESAJLARI[0];
   const tpl = findDesk360Sablon(templates, tanim);
@@ -104,15 +105,19 @@ export default function OdemeMesajlari({
       setHits([]);
       return;
     }
+    const nesil = ++aramaNesil.current;
+    setBusy(false);
     const ctrl = new AbortController();
     const timer = window.setTimeout(async () => {
       try {
         const res = await fetch(`/api/arama?q=${encodeURIComponent(t)}`, { signal: ctrl.signal });
         const data = await res.json();
+        if (nesil !== aramaNesil.current) return;
         const list: Hit[] = (data.results ?? []).filter((h: Hit) => h.kind === "ogrenci");
-        setHits(list);
+        setHits(list.length === 1 ? [] : list);
+        if (list.length === 1) void secOgrenci(list[0].id, nesil);
       } catch {
-        if (!ctrl.signal.aborted) setHits([]);
+        if (!ctrl.signal.aborted && nesil === aramaNesil.current) setHits([]);
       }
     }, 200);
     return () => {
@@ -121,13 +126,14 @@ export default function OdemeMesajlari({
     };
   }, [q, ogrenci]);
 
-  async function secOgrenci(id: number) {
+  async function secOgrenci(id: number, nesil = aramaNesil.current) {
     setBusy(true);
     setHits([]);
     setResult("");
     try {
       const res = await fetch(`/api/wapi/odeme?id=${id}`);
       const data = await res.json();
+      if (nesil !== aramaNesil.current) return;
       if (!data.ok) {
         setOgrenci(null);
         setResult(data.error || "Öğrenci okunamadı");
@@ -141,7 +147,7 @@ export default function OdemeMesajlari({
       const fields = (ODEME_MESAJLARI.find((m) => m.id === mesajId) ?? ODEME_MESAJLARI[0]).fields;
       setAlan(doldurAlan(o.values[mesajId], fields));
     } finally {
-      setBusy(false);
+      if (nesil === aramaNesil.current) setBusy(false);
     }
   }
 
@@ -312,7 +318,9 @@ export default function OdemeMesajlari({
                     className="block w-full px-3 py-2 text-left text-sm outline-none hover:bg-muted focus-visible:bg-muted"
                     onClick={() => void secOgrenci(h.id)}
                   >
-                    {h.name} {h.extra ? <span className="text-muted-foreground">{h.extra}</span> : null}
+                    {h.name}
+                    {h.phone ? <span className="ml-2 text-muted-foreground">{h.phone}</span> : null}
+                    {h.extra ? <span className="ml-2 text-muted-foreground">{h.extra}</span> : null}
                   </button>
                 </li>
               ))}
@@ -336,6 +344,12 @@ export default function OdemeMesajlari({
                 placeholder="05xx…"
               />
             </div>
+            {alan.yeni_odeme_plani && !tanim.fields.includes("yeni_odeme_plani") ? (
+              <div className="flex flex-col gap-1.5">
+                <div className="text-xs font-medium text-muted-foreground">Ödeme planı</div>
+                <pre className="m-0 rounded-lg border bg-muted/50 p-3 font-sans text-sm whitespace-pre-wrap">{alan.yeni_odeme_plani}</pre>
+              </div>
+            ) : null}
           </>
         )}
 

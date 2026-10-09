@@ -219,18 +219,10 @@ export function AppHeader({
       setOkulBusy(false);
     }
   }
-  const navRef = useRef<HTMLElement>(null);
   const items = ODT_MENU_ITEMS.filter((item) => modules.includes(item.module ?? item.id));
-
-  useEffect(() => {
-    const nav = navRef.current;
-    const current = nav?.querySelector<HTMLElement>("[aria-current='page']");
-    if (!nav || !current) return;
-    const left = current.offsetLeft;
-    const right = left + current.offsetWidth;
-    if (left < nav.scrollLeft) nav.scrollLeft = left;
-    else if (right > nav.scrollLeft + nav.clientWidth) nav.scrollLeft = right - nav.clientWidth;
-  }, [pathname]);
+  const n = items.length;
+  const iconCls = n >= 18 ? "size-2.5" : n >= 14 ? "size-3" : "size-3.5";
+  const textCls = n >= 18 ? "text-[9px]" : n >= 14 ? "text-[10px]" : "text-[11px]";
 
   return (
     <header className="print:hidden sticky top-0 z-30 flex h-12 shrink-0 items-center gap-2 border-b bg-background/95 px-3 backdrop-blur supports-[backdrop-filter]:bg-background/80">
@@ -240,7 +232,7 @@ export function AppHeader({
         </span>
         <span className="hidden text-sm font-semibold sm:inline">Northfly ODT</span>
       </Link>
-      <nav ref={navRef} aria-label="Sayfalar" className="flex min-w-0 flex-1 items-center gap-0.5 overflow-x-auto">
+      <nav aria-label="Sayfalar" className="flex min-w-0 flex-1 items-center overflow-hidden">
         {items.map((item) => {
           const Icon = ICONS[item.id] ?? Table2;
           const on = odtNavActive(pathname, item.href);
@@ -248,14 +240,16 @@ export function AppHeader({
             <Link
               key={item.id}
               href={item.href}
+              title={item.label}
               aria-current={on ? "page" : undefined}
               className={cn(
-                "inline-flex h-8 shrink-0 items-center gap-1.5 rounded-md px-2 text-xs text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+                "inline-flex h-8 min-w-0 flex-1 items-center justify-center gap-0.5 overflow-hidden rounded-md px-0.5 text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+                textCls,
                 on && "bg-accent font-medium text-accent-foreground",
               )}
             >
-              <Icon className="size-3.5" aria-hidden="true" />
-              <span>{item.short}</span>
+              <Icon className={cn(iconCls, "shrink-0")} aria-hidden="true" />
+              <span className="truncate">{item.short}</span>
             </Link>
           );
         })}
