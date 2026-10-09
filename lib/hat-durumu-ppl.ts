@@ -1,8 +1,7 @@
 import { rows } from "./db";
 import { labelTextColor } from "./hesaplamalar";
-import { ODT_DEFAULT_CORP_LABEL_IDS } from "./ogrenci";
-
-export const HAT_PPL_DEFAULT_CORP_IDS = ODT_DEFAULT_CORP_LABEL_IDS.filter((id) => id !== 875 && id !== 1090);
+import { varsayilanAktifEtiketler, varsayilanEtiketKumesi } from "./corp-etiket";
+import { aktifOkul } from "./okul-istek";
 
 export type HatPplStage = "teori" | "stpl" | "first_solo" | "dual" | "ir" | "xc" | "st";
 export type HatPplRevision = "rev2" | "rev3";
@@ -394,7 +393,7 @@ function toCard(s: HatPplStudent, stage: HatPplStage, nazari: HatPplNazari | nul
   };
 }
 
-export function parseHatPplFilters(sp: Record<string, string | string[] | undefined>): HatPplFilters {
+export async function parseHatPplFilters(sp: Record<string, string | string[] | undefined>): Promise<HatPplFilters> {
   const last = (v: string | string[] | undefined): string | undefined => {
     if (Array.isArray(v)) return v[v.length - 1];
     return typeof v === "string" ? v : undefined;
@@ -437,7 +436,7 @@ export function parseHatPplFilters(sp: Record<string, string | string[] | undefi
     showSuspended,
     excludePplGrads,
     corpFormSubmitted: false,
-    activeCorpIds: HAT_PPL_DEFAULT_CORP_IDS,
+    activeCorpIds: varsayilanAktifEtiketler(await aktifOkul()),
     showAllCorpLabels,
   };
 }
@@ -504,7 +503,7 @@ export async function getHatPplPageData(filters: HatPplFilters): Promise<HatPplP
     };
   });
 
-  const defaultCorpSet = new Set(ODT_DEFAULT_CORP_LABEL_IDS);
+  const defaultCorpSet = new Set(varsayilanEtiketKumesi(await aktifOkul()));
   const mappedCorp = corpLabels.map((r) => ({
     m_ID: num(r.m_ID),
     name: String(r.name ?? ""),

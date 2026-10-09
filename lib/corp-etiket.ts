@@ -9,3 +9,16 @@ export const ODT_DEFAULT_CORP_LABEL_IDS =
     : [663, 1079, 1082, 1085, 875, 1077, 1080, 1083, 779, 1078, 1081, 1084, 1090];
 
 export const ODT_DEFAULT_ACTIVE_CORP_IDS = ODT_DEFAULT_CORP_LABEL_IDS.filter((id) => id !== 875 && id !== 1090);
+
+// Northfly açılınca işaretli gelen etiketler. HUKUK yok.
+const NORTHFLY_DEFAULT_ACTIVE_CORP_IDS = [1081, 1085, 1079, 663, 1083, 875, 1090, 1077, 1080, 1084, 890];
+
+export function varsayilanAktifEtiketler(okul: string): number[] {
+  if (okul === "northfly") return NORTHFLY_DEFAULT_ACTIVE_CORP_IDS;
+  return ODT_DEFAULT_ACTIVE_CORP_IDS;
+}
+
+export function varsayilanEtiketKumesi(okul: string): number[] {
+  if (okul === "northfly") return NORTHFLY_DEFAULT_ACTIVE_CORP_IDS;
+  return ODT_DEFAULT_CORP_LABEL_IDS;
+}

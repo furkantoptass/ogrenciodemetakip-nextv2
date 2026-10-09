@@ -13,6 +13,6 @@ export default async function HatDurumuPplPage({
 }) {
   await requirePageModule("hat-ppl");
   const sp = await searchParams;
-  const data = await getHatPplPageData(parseHatPplFilters(sp));
+  const data = await getHatPplPageData(await parseHatPplFilters(sp));
   return <HatDurumuPpl data={data} />;
 }

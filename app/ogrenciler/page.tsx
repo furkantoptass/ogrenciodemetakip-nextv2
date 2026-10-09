@@ -1,6 +1,8 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { getOgrenciList, getFilters, getCurrencyMap, getCorpLabelCounts, getStudentDropdownList, ODT_DEFAULT_ACTIVE_CORP_IDS } from "@/lib/ogrenci";
+import { getOgrenciList, getFilters, getCurrencyMap, getCorpLabelCounts, getStudentDropdownList } from "@/lib/ogrenci";
+import { varsayilanAktifEtiketler } from "@/lib/corp-etiket";
+import { aktifOkul } from "@/lib/okul-istek";
 import { getOgrenciDetay } from "@/lib/ogrenci-detay";
 import OgrenciTable from "@/components/OgrenciTable";
 import { firstOpenHref, getYetki, hasModule } from "@/lib/odt-yetki";
@@ -41,7 +43,7 @@ export default async function HomePage({
   const overdueOnly = lastStr(sp.overdue_only) === "1";
   const noteMode = lastStr(sp.note_mode) === "1";
 
-  const activeCorpIds = corpFormSubmitted ? corp : ODT_DEFAULT_ACTIVE_CORP_IDS;
+  const activeCorpIds = corpFormSubmitted ? corp : varsayilanAktifEtiketler(await aktifOkul());
 
   const [rows, filters, { currencies, symbolMap }, corpCounts, studentDropdown, detay] = await Promise.all([
     getOgrenciList({ fleet, facility, group, student, corp: activeCorpIds, corpFormSubmitted, search, grad, susp, excludePplGrad }),

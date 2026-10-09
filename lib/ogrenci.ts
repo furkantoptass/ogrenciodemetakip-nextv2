@@ -1,5 +1,6 @@
 import { rows as dbRows } from "./db";
-import { ODT_DEFAULT_ACTIVE_CORP_IDS, ODT_DEFAULT_CORP_LABEL_IDS } from "./corp-etiket";
+import { ODT_DEFAULT_ACTIVE_CORP_IDS, ODT_DEFAULT_CORP_LABEL_IDS, varsayilanAktifEtiketler } from "./corp-etiket";
+import { aktifOkul } from "./okul-istek";
 import {
   autoplanFromContractEur,
   studentPaidBehindDuePlan,
@@ -103,7 +104,7 @@ export async function getOgrenciList(filters: OgrenciListFilters): Promise<Ogren
   if (filters.corpFormSubmitted) {
     activeCorpIds = filters.corp ?? [];
   } else {
-    activeCorpIds = ODT_DEFAULT_ACTIVE_CORP_IDS;
+    activeCorpIds = varsayilanAktifEtiketler(await aktifOkul());
   }
 
   // Süzgeçler odt_ogrenci_list içinde sabit koşullardır; boş olanlar null gider.
